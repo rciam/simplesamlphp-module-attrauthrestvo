@@ -14,39 +14,39 @@ use SimpleSAML\XHTML\Template;
  *
  * Example configuration:
  *
- *    authproc = array(
+ *    authproc = [
  *       ...
- *       '60' => array(
+ *       '60' => [
  *            'class' => 'attrauthrestvo:COmanageDbClient',
  *            'userIdAttribute' => 'eduPersonUniqueId',
  *            'attributeName' => 'eduPersonEntitlement',
- *            'defaultRoles' => array(
+ *            'defaultRoles' => [
  *               'member',
  *               'vm_operator'
- *           ),
+ *           ],
  *           'roleUrnNamespace' => 'urn:mace:example.org',
  *           'roleAuthority' => 'www.example.org',
  *           'legacyEntitlementSyntax' => false,
  *           'legacyRoleUrnNamespace' => 'urn:mace:example.org',
  *           'legacyRoleAuthority' => 'www.example.org',
- *           'voWhitelist' => array(
+ *           'voWhitelist' => [
  *               'vo.example01.org',
  *               'vo.example02.org',
- *           ),
- *       ),
+ *           ],
+ *       ],
  *
  * @author Nicolas Liampotis <nliam@grnet.gr>
  */
 class COmanageDbClient extends ProcessingFilter
 {
     // List of SP entity IDs that should be excluded from this filter.
-    private $spBlacklist = array();
+    private $spBlacklist = [];
 
     private $userIdAttribute = 'eduPersonUniqueId';
 
     private $attributeName = 'eduPersonEntitlement';
 
-    private $defaultRoles = array();
+    private $defaultRoles = [];
 
     private $roleUrnNamespace;
 
@@ -223,7 +223,7 @@ class COmanageDbClient extends ProcessingFilter
                 }
                 $voName = $vo['vo_id'];
                 if (!array_key_exists($this->attributeName, $state['Attributes'])) {
-                    $state['Attributes'][$this->attributeName] = array();
+                    $state['Attributes'][$this->attributeName] = [];
                 }
                 foreach ($this->defaultRoles as $role) {
                     if ($this->legacyEntitlementSyntax) {
@@ -252,11 +252,11 @@ class COmanageDbClient extends ProcessingFilter
         Logger::debug("[attrauthrestvo] getVOs: epuid="
             . var_export($epuid, true));
 
-        $result = array();
+        $result = [];
         $db = Database::getInstance();
-        $queryParams = array(
-            'epuid' => array($epuid, PDO::PARAM_STR),
-        );
+        $queryParams = [
+            'epuid' => [$epuid, PDO::PARAM_STR],
+        ];
         $stmt = $db->read($this->voQuery, $queryParams);
         if ($stmt->execute()) {
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {

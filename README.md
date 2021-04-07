@@ -82,30 +82,30 @@ modify the source code.
 ### Example authproc filter configuration
 
 ```php
-    authproc = array(
+    authproc = [
         ...
-        '60' => array(
+        '60' => [
             'class' => 'attrauthrestvo:COmanageDbClient',
             'userIdAttribute' => 'eduPersonUniqueId',
             'attributeName' => 'eduPersonEntitlement',
-            'defaultRoles' => array(
+            'defaultRoles' => [
                 'member',
                 'vm_operator'
-            ),
+            ],
             'roleUrnNamespace' => 'urn:mace:example.org',
             'roleAuthority' => 'www.example.org',
             'legacyEntitlementSyntax' => false,
             'legacyRoleUrnNamespace' => 'urn:mace:example.org',
             'legacyRoleAuthority' => 'www.example.org',
-            'spBlacklist' => array(
+            'spBlacklist' => [
                 'https://sp1.example.org/entityid',
                 'https://sp2.example.org/entityid',
-            ),
-            'voWhitelist' => array(
+            ],
+            'voWhitelist' => [
                 'vo.example01.org',
                 'vo.example02.org',
-            ),
-        ),
+            ],
+        ],
 ```
 
 ## Compatibility matrix

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comply to [PSR-12: Extended Coding Style](https://www.php-fig.org/psr/psr-12/)
   guidelines
 - Comply to [markdownlint rules](https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md)
+- Apply modern array syntax to comply with [SimpleSAMLphp v1.17](https://simplesamlphp.org/docs/stable/simplesamlphp-upgrade-notes-1.17)
 
 ## [v1.0.0] - 2021-04-07
 
