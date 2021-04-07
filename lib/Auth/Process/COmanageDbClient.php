@@ -2,6 +2,13 @@
 
 namespace SimpleSAML\Module\attrauthrestvo\Auth\Process;
 
+use SimpleSAML\Auth\ProcessingFilter;
+use SimpleSAML\Logger;
+use SimpleSAML\Error\Exception;
+use SimpleSAML\Database;
+use SimpleSAML\Configuration;
+use SimpleSAML\XHTML\Template;
+
 /**
  * COmanage DB authproc filter.
  *
@@ -30,7 +37,7 @@ namespace SimpleSAML\Module\attrauthrestvo\Auth\Process;
  *
  * @author Nicolas Liampotis <nliam@grnet.gr>
  */
-class COmanageDbClient extends SimpleSAML\Auth\ProcessingFilter
+class COmanageDbClient extends ProcessingFilter
 {
     // List of SP entity IDs that should be excluded from this filter.
     private $spBlacklist = array();
@@ -44,7 +51,7 @@ class COmanageDbClient extends SimpleSAML\Auth\ProcessingFilter
     private $roleUrnNamespace;
 
     private $roleAuthority;
-    
+
     private $legacyEntitlementSyntax = false;
 
     private $legacyRoleUrnNamespace;
@@ -67,10 +74,12 @@ class COmanageDbClient extends SimpleSAML\Auth\ProcessingFilter
 
         if (array_key_exists('userIdAttribute', $config)) {
             if (!is_string($config['userIdAttribute'])) {
-                SimpleSAML\Logger::error(
-                    "[attrauthrestvo] Configuration error: 'userIdAttribute' not a string literal");
-                throw new SimpleSAML\Error\Exception(
-                    "attrauthrestvo configuration error: 'userIdAttribute' not a string literal");
+                Logger::error(
+                    "[attrauthrestvo] Configuration error: 'userIdAttribute' not a string literal"
+                );
+                throw new Exception(
+                    "attrauthrestvo configuration error: 'userIdAttribute' not a string literal"
+                );
             }
             $this->userIdAttribute = $config['userIdAttribute'];
         }
@@ -89,10 +98,12 @@ class COmanageDbClient extends SimpleSAML\Auth\ProcessingFilter
 
         if (array_key_exists('spBlacklist', $config)) {
             if (!is_array($config['spBlacklist'])) {
-                SimpleSAML\Logger::error(
-                    "[attrauthrestvo] Configuration error: 'spBlacklist' not an array");
-                throw new SimpleSAML\Error\Exception(
-                    "attrauthrestvo configuration error: 'spBlacklist' not an array");
+                Logger::error(
+                    "[attrauthrestvo] Configuration error: 'spBlacklist' not an array"
+                );
+                throw new Exception(
+                    "attrauthrestvo configuration error: 'spBlacklist' not an array"
+                );
             }
             $this->spBlacklist = $config['spBlacklist'];
         }
@@ -186,17 +197,23 @@ class COmanageDbClient extends SimpleSAML\Auth\ProcessingFilter
     {
         try {
             assert('is_array($state)');
-            if (isset($state['SPMetadata']['entityid']) && in_array($state['SPMetadata']['entityid'], $this->spBlacklist, true)) {
-                SimpleSAML\Logger::debug(
+            if (
+                isset($state['SPMetadata']['entityid'])
+                && in_array($state['SPMetadata']['entityid'], $this->spBlacklist, true)
+            ) {
+                Logger::debug(
                     "[attrauthrestvo] process: Skipping blacklisted SP "
-                    . var_export($state['SPMetadata']['entityid'], true));
+                    . var_export($state['SPMetadata']['entityid'], true)
+                );
                 return;
             }
             if (empty($state['Attributes'][$this->userIdAttribute])) {
-                SimpleSAML\Logger::error(
-                    "[attrauthrestvo] Configuration error: 'userIdAttribute' not available");
-                throw new SimpleSAML\Error\Exception(
-                    "attrauthrestvo configuration error: 'userIdAttribute' not available");
+                Logger::error(
+                    "[attrauthrestvo] Configuration error: 'userIdAttribute' not available"
+                );
+                throw new Exception(
+                    "attrauthrestvo configuration error: 'userIdAttribute' not available"
+                );
             }
             $epuid = $state['Attributes'][$this->userIdAttribute][0];
             $vos = $this->getVOs($epuid);
@@ -219,10 +236,10 @@ class COmanageDbClient extends SimpleSAML\Auth\ProcessingFilter
                     }
                     $state['Attributes'][$this->attributeName][] =
                         $this->roleUrnNamespace     // URN namespace
-                         . ":group:"                // group
-                         . urlencode($voName) . ":" // VO
-                         . "role=" . $role . "#"    // role
-                         . $this->roleAuthority;    // AA FQDN
+                        . ":group:"                // group
+                        . urlencode($voName) . ":" // VO
+                        . "role=" . $role . "#"    // role
+                        . $this->roleAuthority;    // AA FQDN
                 }
             }
         } catch (\Exception $e) {
@@ -232,11 +249,11 @@ class COmanageDbClient extends SimpleSAML\Auth\ProcessingFilter
 
     private function getVOs($epuid)
     {
-        SimpleSAML\Logger::debug("[attrauthrestvo] getVOs: epuid="
+        Logger::debug("[attrauthrestvo] getVOs: epuid="
             . var_export($epuid, true));
 
         $result = array();
-        $db = SimpleSAML\Database::getInstance();
+        $db = Database::getInstance();
         $queryParams = array(
             'epuid' => array($epuid, PDO::PARAM_STR),
         );
@@ -245,11 +262,14 @@ class COmanageDbClient extends SimpleSAML\Auth\ProcessingFilter
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $result[] = $row;
             }
-            SimpleSAML\Logger::debug("[attrauthrestvo] getVOs: result="
-                . var_export($result, true));
+            Logger::debug(
+                "[attrauthrestvo] getVOs: result=" . var_export($result, true)
+            );
             return $result;
         } else {
-            throw new Exception('Failed to communicate with COmanage Registry: '.var_export($db->getLastError(), true));
+            throw new Exception(
+                'Failed to communicate with COmanage Registry: ' . var_export($db->getLastError(), true)
+            );
         }
 
         return $result;
@@ -257,8 +277,8 @@ class COmanageDbClient extends SimpleSAML\Auth\ProcessingFilter
 
     private function showException($e)
     {
-        $globalConfig = SimpleSAML\Configuration::getInstance();
-        $t = new SimpleSAML\XHTML\Template($globalConfig, 'attrauthrestvo:exception.tpl.php');
+        $globalConfig = Configuration::getInstance();
+        $t = new Template($globalConfig, 'attrauthrestvo:exception.tpl.php');
         $t->data['e'] = $e->getMessage();
         $t->show();
         exit();

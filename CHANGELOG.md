@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Comply to [PSR-4: Autoloader](https://www.php-fig.org/psr/psr-4/) guidelines
+- Comply to [PSR-12: Extended Coding Style](https://www.php-fig.org/psr/psr-12/) guidelines
 
 ## [v1.0.0] - 2021-04-07
 
