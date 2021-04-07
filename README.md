@@ -5,9 +5,10 @@ information adding them to the list of attributes received from the identity pro
 
 In a nutshell, this module provides a set of SimpleSAMLphp authentication
 processing filters allowing to use VOMS as an Attribute Authority. Specifically,
-the module supports retrieving user's VO membership and role information and create entitlements, which are
-encapsulated in `eduPersonEntitlement` attribute values following the
-[AARC-G002](https://aarc-community.org/guidelines/aarc-g002/) specification
+the module supports retrieving user's VO membership and role information and
+create entitlements, which are encapsulated in `eduPersonEntitlement` attribute
+values following the [AARC-G002](https://aarc-community.org/guidelines/aarc-g002/)
+specification
 
 The VO membership information must be stored into a SQL table, in order to eliminate
 any delay in the login process. The table should contain the following columns:
@@ -112,7 +113,7 @@ modify the source code.
 This table matches the module version with the supported SimpleSAMLphp version.
 
 | Module | SimpleSAMLphp |
-| :----: | :-----------: |
+|:------:|:-------------:|
 |  v1.0  |     v1.14     |
 
 ## License
