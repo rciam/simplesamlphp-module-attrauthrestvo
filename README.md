@@ -5,9 +5,10 @@ information adding them to the list of attributes received from the identity pro
 
 In a nutshell, this module provides a set of SimpleSAMLphp authentication
 processing filters allowing to use VOMS as an Attribute Authority. Specifically,
-the module supports retrieving user's VO membership and role information and create entitlements, which are
-encapsulated in `eduPersonEntitlement` attribute values following the
-[AARC-G002](https://aarc-community.org/guidelines/aarc-g002/) specification
+the module supports retrieving user's VO membership and role information and
+create entitlements, which are encapsulated in `eduPersonEntitlement` attribute
+values following the [AARC-G002](https://aarc-community.org/guidelines/aarc-g002/)
+specification
 
 The VO membership information must be stored into a SQL table, in order to eliminate
 any delay in the login process. The table should contain the following columns:
@@ -81,30 +82,30 @@ modify the source code.
 ### Example authproc filter configuration
 
 ```php
-    authproc = array(
+    authproc = [
         ...
-        '60' => array(
+        '60' => [
             'class' => 'attrauthrestvo:COmanageDbClient',
             'userIdAttribute' => 'eduPersonUniqueId',
             'attributeName' => 'eduPersonEntitlement',
-            'defaultRoles' => array(
+            'defaultRoles' => [
                 'member',
                 'vm_operator'
-            ),
+            ],
             'roleUrnNamespace' => 'urn:mace:example.org',
             'roleAuthority' => 'www.example.org',
             'legacyEntitlementSyntax' => false,
             'legacyRoleUrnNamespace' => 'urn:mace:example.org',
             'legacyRoleAuthority' => 'www.example.org',
-            'spBlacklist' => array(
+            'spBlacklist' => [
                 'https://sp1.example.org/entityid',
                 'https://sp2.example.org/entityid',
-            ),
-            'voWhitelist' => array(
+            ],
+            'voWhitelist' => [
                 'vo.example01.org',
                 'vo.example02.org',
-            ),
-        ),
+            ],
+        ],
 ```
 
 ## Compatibility matrix
@@ -112,8 +113,9 @@ modify the source code.
 This table matches the module version with the supported SimpleSAMLphp version.
 
 | Module | SimpleSAMLphp |
-| :----: | :-----------: |
+|:------:|:-------------:|
 |  v1.0  |     v1.14     |
+|  v2.0  |     v1.17     |
 
 ## License
 

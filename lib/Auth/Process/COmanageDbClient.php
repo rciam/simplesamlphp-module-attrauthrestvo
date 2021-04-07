@@ -1,48 +1,57 @@
 <?php
 
+namespace SimpleSAML\Module\attrauthrestvo\Auth\Process;
+
+use SimpleSAML\Auth\ProcessingFilter;
+use SimpleSAML\Logger;
+use SimpleSAML\Error\Exception;
+use SimpleSAML\Database;
+use SimpleSAML\Configuration;
+use SimpleSAML\XHTML\Template;
+
 /**
  * COmanage DB authproc filter.
  *
  * Example configuration:
  *
- *    authproc = array(
+ *    authproc = [
  *       ...
- *       '60' => array(
+ *       '60' => [
  *            'class' => 'attrauthrestvo:COmanageDbClient',
  *            'userIdAttribute' => 'eduPersonUniqueId',
  *            'attributeName' => 'eduPersonEntitlement',
- *            'defaultRoles' => array(
+ *            'defaultRoles' => [
  *               'member',
  *               'vm_operator'
- *           ),
+ *           ],
  *           'roleUrnNamespace' => 'urn:mace:example.org',
  *           'roleAuthority' => 'www.example.org',
  *           'legacyEntitlementSyntax' => false,
  *           'legacyRoleUrnNamespace' => 'urn:mace:example.org',
  *           'legacyRoleAuthority' => 'www.example.org',
- *           'voWhitelist' => array(
+ *           'voWhitelist' => [
  *               'vo.example01.org',
  *               'vo.example02.org',
- *           ),
- *       ),
+ *           ],
+ *       ],
  *
  * @author Nicolas Liampotis <nliam@grnet.gr>
  */
-class sspmod_attrauthrestvo_Auth_Process_COmanageDbClient extends SimpleSAML_Auth_ProcessingFilter
+class COmanageDbClient extends ProcessingFilter
 {
     // List of SP entity IDs that should be excluded from this filter.
-    private $spBlacklist = array();
+    private $spBlacklist = [];
 
     private $userIdAttribute = 'eduPersonUniqueId';
 
     private $attributeName = 'eduPersonEntitlement';
 
-    private $defaultRoles = array();
+    private $defaultRoles = [];
 
     private $roleUrnNamespace;
 
     private $roleAuthority;
-    
+
     private $legacyEntitlementSyntax = false;
 
     private $legacyRoleUrnNamespace;
@@ -65,10 +74,12 @@ class sspmod_attrauthrestvo_Auth_Process_COmanageDbClient extends SimpleSAML_Aut
 
         if (array_key_exists('userIdAttribute', $config)) {
             if (!is_string($config['userIdAttribute'])) {
-                SimpleSAML_Logger::error(
-                    "[attrauthrestvo] Configuration error: 'userIdAttribute' not a string literal");
-                throw new SimpleSAML_Error_Exception(
-                    "attrauthrestvo configuration error: 'userIdAttribute' not a string literal");
+                Logger::error(
+                    "[attrauthrestvo] Configuration error: 'userIdAttribute' not a string literal"
+                );
+                throw new Exception(
+                    "attrauthrestvo configuration error: 'userIdAttribute' not a string literal"
+                );
             }
             $this->userIdAttribute = $config['userIdAttribute'];
         }
@@ -87,10 +98,12 @@ class sspmod_attrauthrestvo_Auth_Process_COmanageDbClient extends SimpleSAML_Aut
 
         if (array_key_exists('spBlacklist', $config)) {
             if (!is_array($config['spBlacklist'])) {
-                SimpleSAML_Logger::error(
-                    "[attrauthrestvo] Configuration error: 'spBlacklist' not an array");
-                throw new SimpleSAML_Error_Exception(
-                    "attrauthrestvo configuration error: 'spBlacklist' not an array");
+                Logger::error(
+                    "[attrauthrestvo] Configuration error: 'spBlacklist' not an array"
+                );
+                throw new Exception(
+                    "attrauthrestvo configuration error: 'spBlacklist' not an array"
+                );
             }
             $this->spBlacklist = $config['spBlacklist'];
         }
@@ -184,17 +197,23 @@ class sspmod_attrauthrestvo_Auth_Process_COmanageDbClient extends SimpleSAML_Aut
     {
         try {
             assert('is_array($state)');
-            if (isset($state['SPMetadata']['entityid']) && in_array($state['SPMetadata']['entityid'], $this->spBlacklist, true)) {
-                SimpleSAML_Logger::debug(
+            if (
+                isset($state['SPMetadata']['entityid'])
+                && in_array($state['SPMetadata']['entityid'], $this->spBlacklist, true)
+            ) {
+                Logger::debug(
                     "[attrauthrestvo] process: Skipping blacklisted SP "
-                    . var_export($state['SPMetadata']['entityid'], true));
+                    . var_export($state['SPMetadata']['entityid'], true)
+                );
                 return;
             }
             if (empty($state['Attributes'][$this->userIdAttribute])) {
-                SimpleSAML_Logger::error(
-                    "[attrauthrestvo] Configuration error: 'userIdAttribute' not available");
-                throw new SimpleSAML_Error_Exception(
-                    "attrauthrestvo configuration error: 'userIdAttribute' not available");
+                Logger::error(
+                    "[attrauthrestvo] Configuration error: 'userIdAttribute' not available"
+                );
+                throw new Exception(
+                    "attrauthrestvo configuration error: 'userIdAttribute' not available"
+                );
             }
             $epuid = $state['Attributes'][$this->userIdAttribute][0];
             $vos = $this->getVOs($epuid);
@@ -204,7 +223,7 @@ class sspmod_attrauthrestvo_Auth_Process_COmanageDbClient extends SimpleSAML_Aut
                 }
                 $voName = $vo['vo_id'];
                 if (!array_key_exists($this->attributeName, $state['Attributes'])) {
-                    $state['Attributes'][$this->attributeName] = array();
+                    $state['Attributes'][$this->attributeName] = [];
                 }
                 foreach ($this->defaultRoles as $role) {
                     if ($this->legacyEntitlementSyntax) {
@@ -217,10 +236,10 @@ class sspmod_attrauthrestvo_Auth_Process_COmanageDbClient extends SimpleSAML_Aut
                     }
                     $state['Attributes'][$this->attributeName][] =
                         $this->roleUrnNamespace     // URN namespace
-                         . ":group:"                // group
-                         . urlencode($voName) . ":" // VO
-                         . "role=" . $role . "#"    // role
-                         . $this->roleAuthority;    // AA FQDN
+                        . ":group:"                // group
+                        . urlencode($voName) . ":" // VO
+                        . "role=" . $role . "#"    // role
+                        . $this->roleAuthority;    // AA FQDN
                 }
             }
         } catch (\Exception $e) {
@@ -230,24 +249,27 @@ class sspmod_attrauthrestvo_Auth_Process_COmanageDbClient extends SimpleSAML_Aut
 
     private function getVOs($epuid)
     {
-        SimpleSAML_Logger::debug("[attrauthrestvo] getVOs: epuid="
+        Logger::debug("[attrauthrestvo] getVOs: epuid="
             . var_export($epuid, true));
 
-        $result = array();
-        $db = SimpleSAML\Database::getInstance();
-        $queryParams = array(
-            'epuid' => array($epuid, PDO::PARAM_STR),
-        );
+        $result = [];
+        $db = Database::getInstance();
+        $queryParams = [
+            'epuid' => [$epuid, PDO::PARAM_STR],
+        ];
         $stmt = $db->read($this->voQuery, $queryParams);
         if ($stmt->execute()) {
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $result[] = $row;
             }
-            SimpleSAML_Logger::debug("[attrauthrestvo] getVOs: result="
-                . var_export($result, true));
+            Logger::debug(
+                "[attrauthrestvo] getVOs: result=" . var_export($result, true)
+            );
             return $result;
         } else {
-            throw new Exception('Failed to communicate with COmanage Registry: '.var_export($db->getLastError(), true));
+            throw new Exception(
+                'Failed to communicate with COmanage Registry: ' . var_export($db->getLastError(), true)
+            );
         }
 
         return $result;
@@ -255,8 +277,8 @@ class sspmod_attrauthrestvo_Auth_Process_COmanageDbClient extends SimpleSAML_Aut
 
     private function showException($e)
     {
-        $globalConfig = SimpleSAML_Configuration::getInstance();
-        $t = new SimpleSAML_XHTML_Template($globalConfig, 'attrauthrestvo:exception.tpl.php');
+        $globalConfig = Configuration::getInstance();
+        $t = new Template($globalConfig, 'attrauthrestvo:exception.tpl.php');
         $t->data['e'] = $e->getMessage();
         $t->show();
         exit();

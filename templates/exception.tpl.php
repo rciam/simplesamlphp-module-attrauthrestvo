@@ -8,9 +8,7 @@ $this->includeAtTemplateBase('includes/header.php');
 An unexpected error occurred while retrieving attributes from an attribute authority. The exception was:
 <pre>
 
-<?php
-    echo $this->data['e'];
-?>
+<?= $this->data['e'] ?>
 </pre>
 
 <?php
