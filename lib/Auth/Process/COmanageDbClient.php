@@ -1,5 +1,7 @@
 <?php
 
+namespace SimpleSAML\Module\attrauthrestvo\Auth\Process;
+
 /**
  * COmanage DB authproc filter.
  *
@@ -28,7 +30,7 @@
  *
  * @author Nicolas Liampotis <nliam@grnet.gr>
  */
-class sspmod_attrauthrestvo_Auth_Process_COmanageDbClient extends SimpleSAML_Auth_ProcessingFilter
+class COmanageDbClient extends SimpleSAML\Auth\ProcessingFilter
 {
     // List of SP entity IDs that should be excluded from this filter.
     private $spBlacklist = array();
@@ -65,9 +67,9 @@ class sspmod_attrauthrestvo_Auth_Process_COmanageDbClient extends SimpleSAML_Aut
 
         if (array_key_exists('userIdAttribute', $config)) {
             if (!is_string($config['userIdAttribute'])) {
-                SimpleSAML_Logger::error(
+                SimpleSAML\Logger::error(
                     "[attrauthrestvo] Configuration error: 'userIdAttribute' not a string literal");
-                throw new SimpleSAML_Error_Exception(
+                throw new SimpleSAML\Error\Exception(
                     "attrauthrestvo configuration error: 'userIdAttribute' not a string literal");
             }
             $this->userIdAttribute = $config['userIdAttribute'];
@@ -87,9 +89,9 @@ class sspmod_attrauthrestvo_Auth_Process_COmanageDbClient extends SimpleSAML_Aut
 
         if (array_key_exists('spBlacklist', $config)) {
             if (!is_array($config['spBlacklist'])) {
-                SimpleSAML_Logger::error(
+                SimpleSAML\Logger::error(
                     "[attrauthrestvo] Configuration error: 'spBlacklist' not an array");
-                throw new SimpleSAML_Error_Exception(
+                throw new SimpleSAML\Error\Exception(
                     "attrauthrestvo configuration error: 'spBlacklist' not an array");
             }
             $this->spBlacklist = $config['spBlacklist'];
@@ -185,15 +187,15 @@ class sspmod_attrauthrestvo_Auth_Process_COmanageDbClient extends SimpleSAML_Aut
         try {
             assert('is_array($state)');
             if (isset($state['SPMetadata']['entityid']) && in_array($state['SPMetadata']['entityid'], $this->spBlacklist, true)) {
-                SimpleSAML_Logger::debug(
+                SimpleSAML\Logger::debug(
                     "[attrauthrestvo] process: Skipping blacklisted SP "
                     . var_export($state['SPMetadata']['entityid'], true));
                 return;
             }
             if (empty($state['Attributes'][$this->userIdAttribute])) {
-                SimpleSAML_Logger::error(
+                SimpleSAML\Logger::error(
                     "[attrauthrestvo] Configuration error: 'userIdAttribute' not available");
-                throw new SimpleSAML_Error_Exception(
+                throw new SimpleSAML\Error\Exception(
                     "attrauthrestvo configuration error: 'userIdAttribute' not available");
             }
             $epuid = $state['Attributes'][$this->userIdAttribute][0];
@@ -230,7 +232,7 @@ class sspmod_attrauthrestvo_Auth_Process_COmanageDbClient extends SimpleSAML_Aut
 
     private function getVOs($epuid)
     {
-        SimpleSAML_Logger::debug("[attrauthrestvo] getVOs: epuid="
+        SimpleSAML\Logger::debug("[attrauthrestvo] getVOs: epuid="
             . var_export($epuid, true));
 
         $result = array();
@@ -243,7 +245,7 @@ class sspmod_attrauthrestvo_Auth_Process_COmanageDbClient extends SimpleSAML_Aut
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $result[] = $row;
             }
-            SimpleSAML_Logger::debug("[attrauthrestvo] getVOs: result="
+            SimpleSAML\Logger::debug("[attrauthrestvo] getVOs: result="
                 . var_export($result, true));
             return $result;
         } else {
@@ -255,8 +257,8 @@ class sspmod_attrauthrestvo_Auth_Process_COmanageDbClient extends SimpleSAML_Aut
 
     private function showException($e)
     {
-        $globalConfig = SimpleSAML_Configuration::getInstance();
-        $t = new SimpleSAML_XHTML_Template($globalConfig, 'attrauthrestvo:exception.tpl.php');
+        $globalConfig = SimpleSAML\Configuration::getInstance();
+        $t = new SimpleSAML\XHTML\Template($globalConfig, 'attrauthrestvo:exception.tpl.php');
         $t->data['e'] = $e->getMessage();
         $t->show();
         exit();
