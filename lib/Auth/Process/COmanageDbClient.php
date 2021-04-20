@@ -2,11 +2,12 @@
 
 namespace SimpleSAML\Module\attrauthrestvo\Auth\Process;
 
+use PDO;
 use SimpleSAML\Auth\ProcessingFilter;
-use SimpleSAML\Logger;
-use SimpleSAML\Error\Exception;
-use SimpleSAML\Database;
 use SimpleSAML\Configuration;
+use SimpleSAML\Database;
+use SimpleSAML\Error\Exception;
+use SimpleSAML\Logger;
 use SimpleSAML\XHTML\Template;
 
 /**
